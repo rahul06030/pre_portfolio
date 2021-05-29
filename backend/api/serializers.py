@@ -7,7 +7,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = "__all__"
-# exclude = ['user']
 
 from .models import Education, Experience
 
@@ -26,4 +25,3 @@ class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
         fields = "__all__"
-
