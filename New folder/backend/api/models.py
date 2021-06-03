@@ -4,8 +4,6 @@ from django.db import models
 import re
 
 
-def __str__(self):
-  return self.title
 class Education(models.Model):
   title = models.CharField(max_length=50, blank=False, null=False)
   college = models.TextField(blank=False, null=False)
@@ -26,11 +24,9 @@ class Project(models.Model):
   title = models.CharField(max_length=200, blank=False, null=False)
   slug = models.SlugField(max_length=200, blank=True, null=True)
   description = models.CharField(blank=False,max_length=200, null=False)
-  image = models.ImageField(upload_to="projects/", blank=False, null=False)
   tools = models.CharField(max_length=200, blank=False, null=False)
-  demo = models.URLField()
   github = models.URLField()
-  show_in_slider = models.BooleanField(default=False)
+  image_url= models.URLField()
 
   def __str__(self):
       return self.title
@@ -46,7 +42,6 @@ class Project(models.Model):
       slug = self.title.strip()
       slug = re.sub(" ", "_", slug)
       return slug.lower()
-
 
 # user = models.ForeignKey(settings.AUTH_USER_MODEL)
 

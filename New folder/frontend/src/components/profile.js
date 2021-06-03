@@ -1,13 +1,13 @@
 import React from 'react';
 import '../App.css';
+import { FaGithubSquare ,FaLinkedin ,FaInstagram} from 'react-icons/fa';
 
-import "bootstrap/dist/css/bootstrap.min.css";
 
 class Profile extends React.Component {
   constructor(props){
     super(props);
       this.state = {
-        expList:[],
+        profileList:[],
         activeItem:{
             id:null,
             first_name:'',
@@ -26,7 +26,7 @@ class Profile extends React.Component {
         makeChanges:false,
 
       }
-      this.fetchExps = this.fetchExps.bind(this)
+      this.fetchProfiles = this.fetchProfiles.bind(this)
       this.handleChange = this.handleChange.bind(this)
       this.handleMakeChanges = this.handleMakeChanges.bind(this)
       this.handleSubmit = this.handleSubmit.bind(this)
@@ -51,15 +51,15 @@ class Profile extends React.Component {
 }
 
   componentWillMount(){
-    this.fetchExps()
+    this.fetchProfiles()
   }
 
-  fetchExps(){
+  fetchProfiles(){
     fetch('http://127.0.0.1:8000/api/profile-view/')
     .then(response => response.json())
     .then(data =>
       this.setState({
-        expList:data
+        profileList:data
       })
       )
 
@@ -111,7 +111,7 @@ class Profile extends React.Component {
       },
       body:JSON.stringify(this.state.activeItem)
     }).then((response)  => {
-        this.fetchExps()
+        this.fetchProfiles()
         this.setState({
            activeItem:{
             id:null,
@@ -133,9 +133,9 @@ class Profile extends React.Component {
 
   }
 
-  startEdit(exp){
+  startEdit(profile){
     this.setState({
-      activeItem:exp,
+      activeItem:profile,
       makeChanges:true,
       editing:true,
     })
@@ -145,7 +145,7 @@ class Profile extends React.Component {
 
 
   render(){
-    var exp = this.state.expList    
+    var profile = this.state.profileList    
     var self = this
     const index=1;
     return(
@@ -156,11 +156,11 @@ class Profile extends React.Component {
 
         <div className="container">
                             {
-                             ((exp.id==null) || this.state.makeChanges )&& <div >
+                             ((profile.id==null) || this.state.makeChanges )&& <div >
                                 <button  style={{margin:"0 auto"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
                             </div> 
                             }
-          <div id="exp-container" style={{maxWidth:"65%" , margin:"0 auto"}}>
+          <div id="profile-container" style={{maxWidth:"65%" , margin:"0 auto"}}>
              {
 
              this.state.makeChanges&& <div  id="form-wrapper">
@@ -189,18 +189,17 @@ class Profile extends React.Component {
               <div  id="list-wrapper" style={{maxWidth:"65%" , margin:"0 auto"}}>
                     
                         {
-                         exp.id!=null && <div key={index} onDoubleClick={() => self.startEdit(exp)}  className="exp-wrapper flex-wrapper">
+                         profile.id!=null && <div key={index} onDoubleClick={() => self.startEdit(profile)}  className="profile-wrapper flex-wrapper">
                           <div>
-                          <span>{exp.first_name}     {exp.last_name}</span><br/>
-                         <span>{exp.phone_number}    {exp.email_address}</span><br/>
-                          <span>{exp.date_of_birth}</span><br/>
-                          <span>{exp.bio}</span><br/>
+                          <span>{profile.first_name}     {profile.last_name}</span><br/>
+                         <span>{profile.phone_number}    {profile.email_address}</span><br/>
+                          <span>{profile.date_of_birth}</span><br/>
+                          <span>{profile.bio}</span><br/>
                           <span>
-                           {<a href={exp.github}>   <i className="bi bi-github"></i>  </a>}
-
-                               {exp.linkedin} {exp.instagram}</span><br/>
-
-
+                           { profile.github && <a className="fa " href={profile.github}><FaGithubSquare/></a>}
+                       {   profile.linkedin&& <a className="fa " href={profile.linkedin}  ><FaLinkedin/></a>}
+                     {      profile.instagra&&<a className="fa " href={profile.instagram}  ><FaInstagram/></a>}
+                            </span>
                           </div>
                           <hr />
                           </div>

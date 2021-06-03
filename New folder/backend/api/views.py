@@ -3,9 +3,9 @@ from django.http import JsonResponse
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import EducationSerializer, ExperienceSerializer,ProfileSerializer, SkillSerializer
+from .serializers import EducationSerializer, ExperienceSerializer,ProfileSerializer, SkillSerializer,ProjectSerializer
 
-from .models import Education,Profile, Experience, Skill
+from .models import Education,Profile, Experience, Skill, Project
 # Create your views here.
 
 @api_view(['GET'])
@@ -117,6 +117,33 @@ def skillCreate(request):
 def skillUpdate(request, pk):
 	skill = Skill.objects.get(id=pk)
 	serializer = SkillSerializer(instance=skill, data=request.data)
+	if serializer.is_valid():
+		serializer.save()
+	return Response(serializer.data)
+
+
+	#		**********		Project		**********
+
+
+
+@api_view(['GET'])
+def projectList(request):
+	projects = Project.objects.all().order_by('-id')
+	serializer = ProjectSerializer(projects, many=True)
+	return Response(serializer.data)
+
+
+@api_view(['POST'])
+def projectCreate(request):
+	serializer = ProjectSerializer(data=request.data)
+	if serializer.is_valid():
+		serializer.save()
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def projectUpdate(request, pk):
+	project = Project.objects.get(id=pk)
+	serializer = ProjectSerializer(instance=project, data=request.data)
 	if serializer.is_valid():
 		serializer.save()
 	return Response(serializer.data)

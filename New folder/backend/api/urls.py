@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.conf.urls.static import static
 
 urlpatterns = [
 	path('', views.apiOverview, name="api-overview"),
@@ -34,5 +35,12 @@ urlpatterns = [
 	path('profile-view/', views.profileDetail, name="profile-create"),
 		path('profile-update/<str:pk>/', views.profileUpdate, name="profile-update"),
 
-
+	#			*****	Project	 *****
+	path('project-list/', views.projectList, name="project-list"),
+	# path('project-detail/<str:pk>/', views.projectDetail, name="project-detail"),
+	path('project-create/', views.projectCreate, name="project-create"),
+	path('project-update/<str:pk>/', views.projectUpdate, name="project-update"),
+	# path('project-delete/<str:pk>/', views.projectDelete, name="project-delete"),
 ]
+
+# + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
