@@ -8,6 +8,7 @@ class Project extends React.Component {
     super(props);
       this.state = {
         expList:[],
+        progress:0,
         activeItem:{
             id:null,
             title:'',
@@ -18,7 +19,7 @@ class Project extends React.Component {
   
 
         },
-        file:'',
+        file:null,
         editing:false,
         makeChanges:false,
 
@@ -77,12 +78,15 @@ class Project extends React.Component {
 
 handleImage(e){
   const types =[ 'image/png', 'image/jpeg', 'image/jpg'  ,'img/jpeg', 'img/jpg' ];
-    var file=e.target.files[0];
-  if(types.includes(file.type)){
+    const files=e.target.files[0];
+  if(types.includes(files.type)){
     this.setState({
-      file:file
-    })
+      file:files
+    }) 
+    this.getDownloadUrl(files)
+
   }
+
   }
   handleChange(e){
     const name = e.target.name
@@ -97,15 +101,19 @@ handleImage(e){
   }
 
 
-getDownloadUrl(){
-        let file=this.state.file
+getDownloadUrl(file){
+      
         console.log(file.name)
-        let storageRef=firebase.storage().ref(`project/${file.name}`)
+        const storageRef=firebase.storage().ref(`project/${file.name}`)
         let uploadTask=storageRef.put(file)
         uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED,
             (snapshot) => {
                 // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                this.setState({
+                  ...this.state,
+                  progress:progress
+                })
                 console.log('Upload is ' + progress + '% done');
                 switch (snapshot.state) {
                   case firebase.storage.TaskState.PAUSED: // or 'paused'
@@ -122,13 +130,15 @@ getDownloadUrl(){
               () => {
                 // Upload completed successfully, now we can get the download URL
                 uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                  console.log(downloadURL)  
+                  console.log("Active", this.state.activeItem)  
                   this.setState({
+                    ...this.state,
                     activeItem:{
                       ...this.state.activeItem,
                     image_url:downloadURL,
-                    }
+                    },
                   })
+                  console.log("Inactive", this.state.activeItem)  
     
                 });
               })
@@ -141,13 +151,10 @@ getDownloadUrl(){
 
 
 
-  handleSubmit(e){   
-    // this.getDownloadUrl()
+  handleSubmit(e){  
 
+ 
     e.preventDefault()
-
-
-
 
     var csrftoken = this.getCookie('csrftoken')
     var url = `http://127.0.0.1:8000/api/project-create/`
@@ -159,8 +166,6 @@ getDownloadUrl(){
         editing:false
       })
     }
-    this.setState({image_url:firebase.firestore().collection(`${this.props.state}/`)})
-
     fetch(url, {
       method:'POST',
       headers:{
@@ -180,7 +185,7 @@ getDownloadUrl(){
             github:'',
   
         },
-        file:'',
+        file:null,
 
         })
     }).catch(function(error){
@@ -203,7 +208,6 @@ getDownloadUrl(){
   render(){
     var exps = this.state.expList    
     var self = this
-    console.log(exps)
     return(
 
 
@@ -230,7 +234,7 @@ getDownloadUrl(){
                         <input onChange={this.handleChange} className="form-control" id="github" value={this.state.activeItem.github} type="url" name="github" placeholder="github.." />
                         <div> 
                             <input id="image"type='file' onChange={this.handleImage } /> 
-                            <button onClick={this.getDownloadUrl} >Upload</button>
+                            {/* <button onClick={this.getDownloadUrl} >Upload</button> */}
                         </div>
 
                         
@@ -238,8 +242,14 @@ getDownloadUrl(){
                         </div>
 
                          <div style={{flex: 1}}>
-                            <input id="submit" className="btn btn-warning" type="submit" name="Add" />
-                          </div>
+                            <h5 style={{display:`${ (this.state.progress>0 &&this.state.progress<100)?'block':'none'}`}}> Uploading image{~~this.state.progress}% done</h5>
+
+                            {  
+                              (this.state.progress==100) && <>
+                                    <h6>Uploaded Image </h6>
+                                    <input id="submit" className="btn btn-warning" type="submit" name="Add" />
+                                </>
+                                }           </div>
                       </div>
                 </form>
               </div>}
@@ -254,7 +264,7 @@ getDownloadUrl(){
                          <span>{exp.description}  </span><br/>
                           <span>{exp.tools}</span><br/>
 
-                          <span>  <img alt={exp.title} src={exp.image_url}></img>  </span><br/>
+                          <span>  <img  src={exp.image_url}  alt={exp.title}/> </span><br/>
                           <span>
                            { exp.github && <a className="fa " href={exp.github}><FaGithubSquare/></a>}
                             </span>

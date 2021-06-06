@@ -22,26 +22,26 @@ class Experience(models.Model):
 
 class Project(models.Model):
   title = models.CharField(max_length=200, blank=False, null=False)
-  slug = models.SlugField(max_length=200, blank=True, null=True)
+  # slug = models.SlugField(max_length=200, blank=True, null=True)
   description = models.CharField(blank=False,max_length=200, null=False)
   tools = models.CharField(max_length=200, blank=False, null=False)
   github = models.URLField()
-  image_url= models.URLField()
+  image_url= models.CharField(max_length=500)
 
   def __str__(self):
       return self.title
 
-  def get_project_absolute_url(self):
-      return "/projects/{}".format(self.slug)
+  # def get_project_absolute_url(self):
+  #     return "/projects/{}".format(self.slug)
 
-  def save(self, *args, **kwargs):
-      self.slug = self.slug_generate()
-      super(Project, self).save(*args, **kwargs)
+  # def save(self, *args, **kwargs):
+  #     self.slug = self.slug_generate()
+  #     super(Project, self).save(*args, **kwargs)
 
-  def slug_generate(self):
-      slug = self.title.strip()
-      slug = re.sub(" ", "_", slug)
-      return slug.lower()
+  # def slug_generate(self):
+  #     slug = self.title.strip()
+  #     slug = re.sub(" ", "_", slug)
+  #     return slug.lower()
 
 # user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
