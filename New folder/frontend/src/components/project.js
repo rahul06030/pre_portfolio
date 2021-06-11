@@ -1,14 +1,17 @@
 import React from 'react';
 import '../App.css';
-import { FaGithubSquare ,FaLinkedin ,FaInstagram} from 'react-icons/fa';
+import './index.css';
+import { FaGithubSquare } from 'react-icons/fa';
 import firebase from '../firebase'
-
+import View from "./view"
 class Project extends React.Component {
   constructor(props){
     super(props);
       this.state = {
         expList:[],
         progress:0,
+        view:false,
+        exp:[],
         activeItem:{
             id:null,
             title:'',
@@ -16,7 +19,7 @@ class Project extends React.Component {
             image_url:'',
             tools:'',
             github:'',
-  
+          
 
         },
         file:null,
@@ -32,9 +35,35 @@ class Project extends React.Component {
       this.startEdit = this.startEdit.bind(this)
       this.handleImage = this.handleImage.bind(this)
       this.getDownloadUrl = this.getDownloadUrl.bind(this)
-  };
+      this.handleClick = this.handleClick.bind(this)
+      this.handleView= this.handleView.bind(this)
+    };
 
-  getCookie(name) {
+    handleView=(e) =>{
+
+      if(this.state.view===false){
+        this.setState({
+         view:true,
+         exp:e
+      });
+    }
+      else{
+      this.setState({
+        view:false,
+        exp:[]
+     });}
+    }
+
+handleClick = (e) => {
+      if (e.target.classList.contains('backdrop')) {
+        this.setState({
+          makeChanges:false,
+          editing:false,
+          view:false,
+        });
+      }
+    }
+getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
@@ -114,13 +143,13 @@ getDownloadUrl(file){
                   ...this.state,
                   progress:progress
                 })
-                console.log('Upload is ' + progress + '% done');
+                // console.log('Upload is ' + progress + '% done');
                 switch (snapshot.state) {
                   case firebase.storage.TaskState.PAUSED: // or 'paused'
-                    console.log('Upload is paused');
+                    // console.log('Upload is paused');
                     break;
                   case firebase.storage.TaskState.RUNNING: // or 'running'
-                    console.log('Uploading');
+                    // console.log('Uploading');
                     break;
                 }
               }, 
@@ -130,16 +159,13 @@ getDownloadUrl(file){
               () => {
                 // Upload completed successfully, now we can get the download URL
                 uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                  console.log("Active", this.state.activeItem)  
                   this.setState({
                     ...this.state,
                     activeItem:{
                       ...this.state.activeItem,
                     image_url:downloadURL,
                     },
-                  })
-                  console.log("Inactive", this.state.activeItem)  
-    
+                  })    
                 });
               })
          }
@@ -195,11 +221,14 @@ getDownloadUrl(file){
   }
 
   startEdit(exp){
+    if(this.props.user!==null){
+
     this.setState({
       activeItem:exp,
       makeChanges:true,
       editing:true,
     })
+  }
   }
 
 
@@ -215,16 +244,19 @@ getDownloadUrl(file){
 
 
         <div className="container">
+                      <h1>Projects</h1>
+
                     <div >
-                        <button  style={{margin:"0 auto"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
-                    </div> 
+                       {this.props.user!==null && <button  style={{margin:"0 auto"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
+                   } </div> 
         
-          <div id="exp-container" style={{maxWidth:"65%" , margin:"0 auto"}}>
+          <div id="exp-container">
              {
 
-             this.state.makeChanges&& <div  id="form-wrapper">
+             this.state.makeChanges&& <div  id="form-wrapper" onClick={this.handleClick} className="backdrop">
                  <form onSubmit={this.handleSubmit}  id="form">
                     <div className="flex-wrapper">
+                    <button  style={{margin:"1rem"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
 
   
                         <div >
@@ -234,7 +266,6 @@ getDownloadUrl(file){
                         <input onChange={this.handleChange} className="form-control" id="github" value={this.state.activeItem.github} type="url" name="github" placeholder="github.." />
                         <div> 
                             <input id="image"type='file' onChange={this.handleImage } /> 
-                            {/* <button onClick={this.getDownloadUrl} >Upload</button> */}
                         </div>
 
                         
@@ -245,7 +276,7 @@ getDownloadUrl(file){
                             <h5 style={{display:`${ (this.state.progress>0 &&this.state.progress<100)?'block':'none'}`}}> Uploading image{~~this.state.progress}% done</h5>
 
                             {  
-                              (this.state.progress==100) && <>
+                              (this.state.progress===100) && <>
                                     <h6>Uploaded Image </h6>
                                     <input id="submit" className="btn btn-warning" type="submit" name="Add" />
                                 </>
@@ -254,29 +285,25 @@ getDownloadUrl(file){
                 </form>
               </div>}
 
-              <div  id="list-wrapper" style={{maxWidth:"65%" , margin:"0 auto"}}>
+              <div  id="list-wrapper" clalssName="row projects" >
               {exps.map(function(exp, index){
                     return(
-                        
-                         <div key={index} onDoubleClick={() => self.startEdit(exp)}  className="exp-wrapper flex-wrapper">
-                          <div>
-                         <span>{exp.title}   </span><br/>
-                         <span>{exp.description}  </span><br/>
-                          <span>{exp.tools}</span><br/>
+                      <div className="card  col-sm-6 project"  key={index} onClick={() => self.handleView(exp)} onDoubleClick={() => self.startEdit(exp)}  style={{width:" 18rem"}}>
+                      <img className="card-img-top images" src={exp.image_url} alt={exp.title}/>
+                      <div className="card-body">
+                        <h5 className="card-title">{exp.title} </h5>
 
-                          <span>  <img  src={exp.image_url}  alt={exp.title}/> </span><br/>
-                          <span>
-                           { exp.github && <a className="fa " href={exp.github}><FaGithubSquare/></a>}
-                            </span>
-                          </div>
-                          <hr />
-                          </div>
-  
+                      </div>
+                       
+                    </div>                   
+
+      
                         )
-                })}
+                })} 
+
+               {this.state.view && <View handle={this.handleView}  item={this.state.exp}></View>}
               </div>
           </div>
-
         </div>
       )
   }

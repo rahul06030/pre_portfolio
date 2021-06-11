@@ -21,8 +21,16 @@ class Skill extends React.Component {
       this.handleSubmit = this.handleSubmit.bind(this)
       this.getCookie = this.getCookie.bind(this)
       this.startEdit = this.startEdit.bind(this)
-  };
-
+      this.handleClick = this.handleClick.bind(this)
+    };
+    handleClick = (e) => {
+      if (e.target.classList.contains('backdrop')) {
+        this.setState({
+          makeChanges:false,
+          editing:false,
+        });
+      }
+    }
   getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -113,11 +121,14 @@ class Skill extends React.Component {
   }
 
   startEdit(skill){
+    if(this.props.user!==null){
+
     this.setState({
       activeItem:skill,
       makeChanges:true,
       editing:true,
     })
+  }
   }
 
 
@@ -128,13 +139,19 @@ class Skill extends React.Component {
     var self = this
     return(
         <div className="container">
+
+        <h1>My Skills</h1>
+  
                             <div>
-                                <button   style={{margin:"0 auto", margin:"5px"}} onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
-                            </div>
+                  {this.props.user!==null && <button   style={{margin:"0 auto", margin:"5px"}} onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
+                           } </div>
           <div id="skill-container">
-             { this.state.makeChanges&& <div  id="form-wrapper">
+             { this.state.makeChanges
+             &&
+              <div  id="form-wrapper" className="backdrop" onClick={this.handleClick} >
                  <form onSubmit={this.handleSubmit}  id="form">
-                    <div className="flex-wrapper">
+                 <button   style={{margin:"1rem"}} onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
+      <div className="flex-wrapper">
                         <div style={{flex: 6}}>
                         <input onChange={this.handleChange} className="form-control" id="name" value={this.state.activeItem.name} type="text" name="name" placeholder=" Skill.." />
                     </div>

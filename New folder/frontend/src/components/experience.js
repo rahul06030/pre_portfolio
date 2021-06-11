@@ -22,9 +22,16 @@ class Experience extends React.Component {
       this.handleMakeChanges = this.handleMakeChanges.bind(this)
       this.handleSubmit = this.handleSubmit.bind(this)
       this.getCookie = this.getCookie.bind(this)
-      this.startEdit = this.startEdit.bind(this)
+      this.handleClick = this.handleClick.bind(this)
   };
-
+  handleClick = (e) => {
+    if (e.target.classList.contains('backdrop')) {
+      this.setState({
+        makeChanges:false,
+        editing:false,
+      });
+    }
+  }
   getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -103,6 +110,8 @@ class Experience extends React.Component {
     }).then((response)  => {
         this.fetchExps()
         this.setState({
+          makeChanges:false,
+          editing:false,
            activeItem:{
             id:null,
             title:'',
@@ -117,11 +126,14 @@ class Experience extends React.Component {
   }
 
   startEdit(exp){
+    if(this.props.user!==null){
+
     this.setState({
       activeItem:exp,
       makeChanges:true,
       editing:true,
     })
+  }
   }
 
 
@@ -132,14 +144,20 @@ class Experience extends React.Component {
     var self = this
     return(
         <div className="container">
+                 {exps.length>0 &&<h1>My Experience</h1>
+}
                             <div >
-                                <button  style={{margin:"0 auto"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
-                            </div>
+                        {this.props.user!==null &&  <button  style={{margin:"0 auto"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
+                          }  </div>
           <div id="exp-container" style={{maxWidth:"65%" , margin:"0 auto"}}>
              {
-              this.state.makeChanges&& <div  id="form-wrapper">
+              this.state.makeChanges&& <div  id="form-wrapper" className="backdrop" onClick={this.handleClick}>
+
+
                  <form onSubmit={this.handleSubmit}  id="form">
-                    <div className="flex-wrapper">
+                    <div className="flex-wrapper"> 
+                    <button  style={{margin:"1rem"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
+
                         <div >
                         <input onChange={this.handleChange} className="form-control" id="title" value={this.state.activeItem.title} type="text" name="title" placeholder=" title.." />
                         <input onChange={this.handleChange} className="form-control" id="description" value={this.state.activeItem.description} type="text" name="description" placeholder=" description.." />

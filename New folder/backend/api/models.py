@@ -12,6 +12,8 @@ class Education(models.Model):
   def __str__(self):
       return self.title
 
+  
+
 class Experience(models.Model):
   title = models.CharField(max_length=50, blank=False, null=False)
   description = models.TextField(blank=False, null=False)
@@ -27,23 +29,14 @@ class Project(models.Model):
   tools = models.CharField(max_length=200, blank=False, null=False)
   github = models.URLField()
   image_url= models.CharField(max_length=500)
-
+  # date_created = models.DateField(auto_now_add=True)
+  # updated_on = models.DateField(auto_now=True)
   def __str__(self):
       return self.title
 
-  # def get_project_absolute_url(self):
-  #     return "/projects/{}".format(self.slug)
-
-  # def save(self, *args, **kwargs):
-  #     self.slug = self.slug_generate()
-  #     super(Project, self).save(*args, **kwargs)
-
-  # def slug_generate(self):
-  #     slug = self.title.strip()
-  #     slug = re.sub(" ", "_", slug)
-  #     return slug.lower()
-
-# user = models.ForeignKey(settings.AUTH_USER_MODEL)
+  # class Meta:
+  #       ordering = ('date_created',)
+  
 
 class Profile(models.Model):
 
@@ -69,3 +62,14 @@ class Skill(models.Model):
   name = models.CharField(max_length=50, blank=False, null=False)
   def __str__(self):
       return self.title
+
+class Course(models.Model):
+      title = models.CharField(max_length=50, blank=False, null=False)
+      institute = models.TextField(blank=False, null=False)
+      completed_on = models.DateField()
+      certi_link=models.URLField(null=True)
+      def __str__(self):
+          return self.title
+      class Meta:
+            ordering = ('completed_on',)
+  

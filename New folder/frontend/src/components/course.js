@@ -2,22 +2,24 @@ import React from 'react';
 import '../App.css';
 import './index.css'
 
-class Education extends React.Component {
+class Course extends React.Component {
   constructor(props){
     super(props);
       this.state = {
-        eduList:[],
+        courseList:[],
+
         activeItem:{
-          id:null,
-          title:'',
-          college:'',
-          year:"",
+            id:null,
+            title:'',
+            certi_link:'',
+            completed_on:"",
+            institute:"",
         },
         editing:false,
         makeChanges:false,
 
       }
-      this.fetchEdus = this.fetchEdus.bind(this)
+      this.fetchCourses = this.fetchCourses.bind(this)
       this.handleChange = this.handleChange.bind(this)
       this.handleMakeChanges = this.handleMakeChanges.bind(this)
       this.handleSubmit = this.handleSubmit.bind(this)
@@ -50,15 +52,15 @@ class Education extends React.Component {
 }
 
   componentWillMount(){
-    this.fetchEdus()
+    this.fetchCourses()
   }
 
-  fetchEdus(){
-    fetch('http://127.0.0.1:8000/api/education-list/')
+  fetchCourses(){
+    fetch('http://127.0.0.1:8000/api/course-list/')
     .then(response => response.json())
     .then(data =>
       this.setState({
-        eduList:data
+        courseList:data
       })
       )
   }
@@ -74,6 +76,9 @@ class Education extends React.Component {
       makeChanges:false
    });}
   }
+
+
+
 
   handleChange(e){
     const name = e.target.name
@@ -91,10 +96,10 @@ class Education extends React.Component {
   handleSubmit(e){
     e.preventDefault()
     var csrftoken = this.getCookie('csrftoken')
-    var url = `http://127.0.0.1:8000/api/education-create/`
+    var url = `http://127.0.0.1:8000/api/course-create/`
 
     if(this.state.editing === true){
-      url = `http://127.0.0.1:8000/api/education-update/${ this.state.activeItem.id}/`
+      url = `http://127.0.0.1:8000/api/course-update/${ this.state.activeItem.id}/`
       this.setState({
         makeChanges:false,
         editing:false
@@ -109,27 +114,32 @@ class Education extends React.Component {
       },
       body:JSON.stringify(this.state.activeItem)
     }).then((response)  => {
-        this.fetchEdus()
+        this.fetchCourses()
         this.setState({
+
           makeChanges:false,
           editing:false,
            activeItem:{
             id:null,
             title:'',
-            college:'',
-            year:"",
+            certi_link:'',
+            completed_on:"",
+            institute:"",
         }
         })
     }).catch(function(error){
-      console.log('ERROR:', error)
+      console.log(error)
+        this.setState({errorMessage: error.message});
+
     })
 
   }
 
-  startEdit(edu){
-    if(this.props.user!==null ){
+  startEdit(course){
+    if(this.props.user!==null){
+
     this.setState({
-      activeItem:edu,
+      activeItem:course,
       makeChanges:true,
       editing:true,
     })
@@ -140,41 +150,45 @@ class Education extends React.Component {
 
 
   render(){
-    var edus = this.state.eduList
+    var courses = this.state.courseList
     var self = this
     return(
-        <span className="container " >
-                            <div >
-                               {this.props.user!==null && <button  style={{margin:"1.5rem "}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
-                          }  </div>
-          <div id="edu"  >
+        <div className="container "  >
+          <div >
+             { this.props.user!==null && <button  style={{margin:"1.5rem"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
+       }   </div>
+          <div id="course-container" >
              {
               this.state.makeChanges&& <div  id="form-wrapper" onClick={this.handleClick} className="backdrop">
 
                  <form onSubmit={this.handleSubmit}  id="form">
                     <div className="flex-wrapper">
-                  <button  style={{margin:"1rem"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger ">{(this.state.makeChanges)?'X' : 'Add'}</button>
-                         <div >
+                          <button  style={{margin:"1rem"}}  onClick={self.handleMakeChanges} className="btn btn-sm btn-outline-danger">{(this.state.makeChanges)?'X' : 'Add'}</button>
+                      <div >
                         <input onChange={this.handleChange} className="form-control" id="title" value={this.state.activeItem.title} type="text" name="title" placeholder=" title.." />
-                        <input onChange={this.handleChange} className="form-control" id="college" value={this.state.activeItem.college} type="text" name="college" placeholder=" college.." />
-                        <input onChange={this.handleChange} className="form-control" id="year" value={this.state.activeItem.year} type="text" name="year" placeholder="Year.." />
+                        <input onChange={this.handleChange} className="form-control" id="institute" value={this.state.activeItem.institute} type="text" name="institute" placeholder=" institute.." />
+                        <input onChange={this.handleChange} className="form-control" id="completed_on" value={this.state.activeItem.completed_on} type="date" name="completed_on" placeholder="completed_on.." />
+                        <input onChange={this.handleChange} className="form-control" id="certi_link" value={this.state.activeItem.certi_link} type="url" name="certi_link" placeholder="certi_link.." />
                          </div>
 
-                         <div style={{flex: 1}}>
+                         <div style={{flex: 1 ,}}>
                             <input id="submit" className="btn btn-warning" type="submit" name="Add" />
                           </div>
                       </div>
                 </form>
+                { this.state.errorMessage &&  <h3 className="error"> { this.state.errorMessage } </h3> }
+
               </div>}
 
-              <div style={{marginLeft:"1.5rem "}} >
-                    {edus.map(function(edu, index){
+              <div style={{marginLeft:"1.5rem "}}>
+                    {courses.map(function(course, index){
                       return(<>
-                        <div className="card border-dark mb-3 col-md-6" key={index} onDoubleClick={() => self.startEdit(edu)} style={{display:"flex" ,width:"25rem" }}  >
-                          <div className="card-header">{edu.year}</div>
+                        <div className="card border-dark mb-3 col-md-6" key={index} onDoubleClick={() => self.startEdit(course)} style={{display:"flex" ,width:"25rem" }}  >
+                          <div className="card-header">{course.completed_on}</div>
                           <div className="card-body text-primary">
-                            <h5 className="card-title">{edu.title}</h5>
-                            <p className="card-text">{edu.college}</p>
+                            <h5 className="card-title">{course.title}</h5>
+                            <p className="card-text">{course.institute}</p>
+                            <a href={course.certi_link}   className="card-link" >Click to verify </a>
                           </div>
                         </div>
 
@@ -184,11 +198,11 @@ class Education extends React.Component {
               </div>
           </div>
 
-        </span>
+        </div>
       )
   }
 }
 
 
 
-export default Education;
+export default Course;
